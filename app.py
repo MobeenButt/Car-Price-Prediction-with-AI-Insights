@@ -1,6 +1,9 @@
 # app.py
 import streamlit as st 
 import pandas as pd
+import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
 import joblib
 import google.generativeai as genai
 from dotenv import load_dotenv
@@ -34,6 +37,13 @@ except FileNotFoundError:
     st.error("Model files not found. Please run model_training.py first.")
     st.stop()
 
+@st.cache_data
+def load_and_preprocess_data():
+    """Load and preprocess the training data for visualizations"""
+    df = pd.read_csv('train-data.csv')
+    df['Age'] = 2024 - df['Year']
+    return df
+
 def predict_price(features):
     """Make prediction using the trained model"""
     # Ensure all required features are present
@@ -62,6 +72,45 @@ def get_gemini_response(prompt):
 # UI Elements
 st.title('🚗 Car Price Prediction with AI Insights')
 st.markdown("---")
+
+# Add a visualization section
+def show_visualizations():
+    """Show interactive visualizations"""
+    st.header("📊 Data Insights")
+    
+    # Load the data
+    df = load_and_preprocess_data()
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # Price Distribution
+        fig_price = px.histogram(df, x='Price', 
+                               title='Distribution of Car Prices',
+                               labels={'Price': 'Price (Lakhs)', 'count': 'Number of Cars'})
+        st.plotly_chart(fig_price, use_container_width=True)
+        
+        # Age vs Price
+        fig_age = px.scatter(df, x='Age', y='Price', 
+                           title='Age vs Price',
+                           labels={'Age': 'Age (Years)', 'Price': 'Price (Lakhs)'})
+        st.plotly_chart(fig_age, use_container_width=True)
+    
+    with col2:
+        # Kilometers Driven vs Price
+        fig_km = px.scatter(df, x='Kilometers_Driven', y='Price',
+                          title='Kilometers Driven vs Price',
+                          labels={'Kilometers_Driven': 'Kilometers Driven', 'Price': 'Price (Lakhs)'})
+        st.plotly_chart(fig_km, use_container_width=True)
+        
+        # Average Price by Fuel Type
+        avg_price = df.groupby('Fuel_Type')['Price'].mean().reset_index()
+        fig_fuel = px.bar(avg_price, x='Fuel_Type', y='Price',
+                         title='Average Price by Fuel Type',
+                         labels={'Price': 'Average Price (Lakhs)', 'Fuel_Type': 'Fuel Type'})
+        st.plotly_chart(fig_fuel, use_container_width=True)
+
+show_visualizations()
 
 # Input form with two columns
 col1, col2 = st.columns(2)

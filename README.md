@@ -1,6 +1,3 @@
-Certainly! Here's a comprehensive and professional `README.md` for the [Car-Price-Prediction-with-AI-Insights](https://github.com/MobeenButt/Car-Price-Prediction-with-AI-Insights) project. This README is designed to clearly present the project's purpose, features, setup instructions, and more.
-
----
 
 # 🚗 Car Price Prediction with AI Insights
 
